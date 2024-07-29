@@ -1,0 +1,10 @@
+
+convergence = ( 45, 0.0020)
+energy_per_electron = -1.8183
+mean_field_gap = 2.5885
+convergence = ( 50, 0.0019)
+energy_per_electron = -1.8183
+mean_field_gap = 2.5881
+convergence = ( 60, 0.0019)
+energy_per_electron = -1.8183
+mean_field_gap = 2.5879
