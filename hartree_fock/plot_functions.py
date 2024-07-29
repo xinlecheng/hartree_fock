@@ -88,7 +88,6 @@ def spin_plot(cell:spcl.Cell, occ_states:List[spcl.EigenState], showfig=False, s
     if showfig:
         plt.show()
 
-
 def element_format(x):
     return f"{x:.2f}"
 vector_format = np.vectorize(element_format)
