@@ -88,6 +88,7 @@ if __name__ == "__main__":
     kgrid = hartree_fock_solvers.Kgrid((0,0),(4,4))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_unif_seed_honcomblattice(nmx,nmy)*100
-    print(hartree_fock_solvers.hartree_fock_solver(
+    hartree_fock_solvers.hartree_fock_solver(
         sps_sd, vdd, 1/4, kgrid, controller, seed, noise = 2.0,
-        save_den_results=True, save_output=True, saving_dir='./results/'))
+        save_den_results=True, save_output=True, saving_dir='./results/')
+    print("calculation complete!")
