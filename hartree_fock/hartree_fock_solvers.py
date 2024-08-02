@@ -160,7 +160,7 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
                               1/2*num_kpts*sum(dot(np.conjugate(occ.bloch_fun), dot(spcl.hamiltonian(sps0, occ.kvec), occ.bloch_fun)) for occ in occ_states))
         sigma_old = sigma_new
         cvg_list.append((float(cvg), float(free_energy/num_ele)))
-        print(ite_cycle, " ", cvg_list[-1]) #db
+    #    print(ite_cycle, " ", cvg_list[-1]) #db
         if ite_cycle > 0 and cvg < cvg_crit:
             break
     #print(plot_functions.vector_format(np.real(den))) #db
