@@ -4,6 +4,9 @@ results/
 # Ignore slurm outputs
 slurm_out/
 
+# Ignore .sh
+*.sh
+
 # Ignore virtual environment
 venv/
 
