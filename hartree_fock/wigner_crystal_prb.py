@@ -2,12 +2,13 @@ import single_particle_class as spcl
 #from single_particle_class import wavefunctions
 import plot_functions as plt
 import manipulation_functions_for_hoppings as hop_funs
+from manipulation_functions_for_hoppings import AtomicIndex
 import interaction
 import seed as seed_generation
 import hartree_fock_solvers
 import numpy as np
 from typing import Dict, List
-import itertools
+import argparse
 
 def arr(*arg):
     return np.array(*arg)
@@ -63,41 +64,35 @@ if __name__ == "__main__":
     a2 = 1/theta*arr([-np.sqrt(3)/2, 1/2])
     privec = arr([[1,0], [0,1]])
     rsdirtocar = transpose(arr([a1, a2]))
-    site_dir_coord = [arr([1/3, 2/3]), arr([2/3, 1/3])]
-    cellprim = spcl.Cell(rsdirtocar, privec, 2, site_dir_coord)
-    hoppings = read_hoppings('./hoppings.dat')
+    site_dir_coord = [arr([0, 0])]
+    cellprim = spcl.Cell(rsdirtocar, privec, 1, site_dir_coord)
+    t = -3.0
+    hoppings = [{AtomicIndex(0,(1,0)):t,
+                 AtomicIndex(0,(0,1)):t,
+                 AtomicIndex(0,(1,1)):t,
+                 AtomicIndex(0,(-1,0)):t,
+                 AtomicIndex(0,(0,-1)):t,
+                 AtomicIndex(0,(-1,-1)):t
+                 }]
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 3
-    nmy = 3
+    nmx = 12
+    nmy = 12
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
     kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
-    #bs = spcl.bandstructure(sps_ec, kline)
-    #plt.list_plot(bs)
-    #print(sps_prim.hoppings[0][hop_funs.AtomicIndex(1,(0,0))])
-
-    # wavfuns = spcl.wavefunctions(sps_prim, [(0,0)])
-    # print(wavfuns[(0,0)].eigvals)
-    # wavfuns = spcl.wavefunctions(sps_sd, [(0,0)])
-    # print(wavfuns[(0,0)].eigvals)
-    # wavfuns = spcl.wavefunctions(sps_ec, [(0,0)])
-    # print(wavfuns[(0,0)].eigvals)
-    vdd = interaction.truncated_coulomb(sps_sd.cell, 0.186, 6*a_m + 0.1, 436/2)
-    #print(len(vdd[0])) #db
-    kgrid = hartree_fock_solvers.Kgrid((0,0),(4,4))
+    # parser = argparse.ArgumentParser()
+    # parser.add_argument('--hubbard_u', type=float) #0.2
+    # parser.add_argument('cutoff', type=int) #6
+    # parser.add_argument('--scaling', type=float) #436 for epsilon=10
+    # args = parser.parse_args()
+    #vdd = interaction.truncated_coulomb(sps_sd.cell, args.hubbard_u, args.cutoff*a_m + 0.1, args.scaling)
+    #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 436/2)
+    #vdd = interaction.pbc_coulomb(sps_sd.cell, 0.2, 436/2, inf=6, shell=0.001, subtract_offset=False)
+    vdd = interaction.pbc_coulomb(sps_sd.cell, 0.2, 436/2, inf=24)
+    print("vdd constructed!")
+    # print(vdd[0][AtomicIndex(1,(0,0))])
+    kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
-    #seed = arr([-1,0,-1,0,0,0,-1,0,0,0,-1,0,0,0,-1,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])*100
-    #print(seed)
-    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=8.0, 
+    seed = seed_generation.fmz_honcomb_seed_trilattice(nmx,nmy)*100
+    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/3, kgrid, controller, seed, noise=0.0,
                                              save_den_results=True, save_output=True, saving_dir='./results')
-    # eig_states = spcl.eigstate_flatten_sort(sps_sd, [arr([i/kgrid.enlargement[0], j/kgrid.enlargement[1]]) 
-    #          for i in range(kgrid.enlargement[0]) 
-    #          for j in range(kgrid.enlargement[1])])
-    # occ_states = itertools.islice(eig_states, 0, 36*4//6)
-    #self_energy = hartree_fock_solvers.self_energy_init(sps_sd,vdd,1/6,kgrid,seed)
-    #print(sps_1.hoppings[6][hop_funs.AtomicIndex(16,(-1,-1))])
-    #print(self_energy[6][hop_funs.AtomicIndex(16,(-1,-1))])
-    #print(hoppings[0][hop_funs.AtomicIndex(0,(-2,-1))])
-    # print(f"{np.real(spcl.hamiltonian(sps_sd,arr([0,0]))[0,0]):0.15f}")
-    # print(eigvalsh(spcl.hamiltonian(sps_sd,arr([0,0]))))
