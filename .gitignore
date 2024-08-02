@@ -1,6 +1,9 @@
 # Ignore results
 results/
 
+# Ignore slurm outputs
+slurm_out/
+
 # Ignore virtual environment
 venv/
 
