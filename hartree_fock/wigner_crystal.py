@@ -65,7 +65,7 @@ if __name__ == "__main__":
     rsdirtocar = transpose(arr([a1, a2]))
     site_dir_coord = [arr([1/3, 2/3]), arr([2/3, 1/3])]
     cellprim = spcl.Cell(rsdirtocar, privec, 2, site_dir_coord)
-    hoppings = read_hoppings("/home/xcheng/Desktop/comtinuum_model/hoppings")
+    hoppings = read_hoppings('./hoppings.dat')
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
     nmx = 3
     nmy = 3
@@ -82,14 +82,15 @@ if __name__ == "__main__":
     # print(wavfuns[(0,0)].eigvals)
     # wavfuns = spcl.wavefunctions(sps_ec, [(0,0)])
     # print(wavfuns[(0,0)].eigvals)
-    vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 436/2)
-    #print(vdd[4][hop_funs.AtomicIndex(14,(-2,0))])
+    vdd = interaction.truncated_coulomb(sps_sd.cell, 0.186, 6*a_m + 0.1, 436/2)
+    #print(len(vdd[0])) #db
     kgrid = hartree_fock_solvers.Kgrid((0,0),(4,4))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
     #seed = arr([-1,0,-1,0,0,0,-1,0,0,0,-1,0,0,0,-1,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])*100
     #print(seed)
-    print(hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=8.0))
+    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=8.0, 
+                                             save_den_results=True, save_output=True, saving_dir='./results')
     # eig_states = spcl.eigstate_flatten_sort(sps_sd, [arr([i/kgrid.enlargement[0], j/kgrid.enlargement[1]]) 
     #          for i in range(kgrid.enlargement[0]) 
     #          for j in range(kgrid.enlargement[1])])
