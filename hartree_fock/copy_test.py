@@ -13,4 +13,4 @@ saving_dir = './results'
 filename = os.path.join(saving_dir, 'test_output')
 if not os.path.exists(filename):
     with open(filename, 'w') as file:
-        file.write(args.hubbard_u, " ", args.scaling)
+        file.write(str(args.hubbard_u) + " " + str(args.scaling))
