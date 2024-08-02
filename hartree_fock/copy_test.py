@@ -11,5 +11,5 @@ parser.add_argument('--scaling', type=float) #436 for epsilon=10
 args = parser.parse_args()
 saving_dir = './results'
 filename = os.path.join(saving_dir, 'test_output')
-with open(filename, 'w') as file:
+with open(filename, 'a') as file:
     file.write(str(args.hubbard_u) + " " + str(args.scaling))
