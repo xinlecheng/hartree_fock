@@ -80,17 +80,16 @@ if __name__ == "__main__":
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
     kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
-    # parser = argparse.ArgumentParser()
-    # parser.add_argument('--hubbard_u', type=float) #0.2
-    # parser.add_argument('cutoff', type=int) #6
-    # parser.add_argument('--scaling', type=float) #436 for epsilon=10
-    # args = parser.parse_args()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--hubbard_u', type=float) #0.2
+    #parser.add_argument('cutoff', type=int) #6
+    parser.add_argument('--scaling', type=float) #436 for epsilon=10
+    args = parser.parse_args()
     #vdd = interaction.truncated_coulomb(sps_sd.cell, args.hubbard_u, args.cutoff*a_m + 0.1, args.scaling)
     #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 436/2)
     #vdd = interaction.pbc_coulomb(sps_sd.cell, 0.2, 436/2, inf=6, shell=0.001, subtract_offset=False)
-    vdd = interaction.pbc_coulomb(sps_sd.cell, 0.2, 436/2, inf=24)
-    print("vdd constructed!")
-    # print(vdd[0][AtomicIndex(1,(0,0))])
+    vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24)
+    #print("vdd constructed!")
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_honcomb_seed_trilattice(nmx,nmy)*100
