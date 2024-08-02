@@ -60,7 +60,7 @@ def hop_copy(hop: Hoppings) -> Hoppings:
 def hop_add(hop0:Hoppings, hop:Hoppings, operation_type = "pure_function") -> Hoppings:
     """
     add the second argument to the first one, 
-    "operation_type" controls whether the operation is inplace
+    "operation_type" controls whether the operation is "pure_function" or "inplace"
     """
     if operation_type == "pure_function":
         hop0_copy = hop_copy(hop0)
@@ -87,7 +87,8 @@ def hop_add(hop0:Hoppings, hop:Hoppings, operation_type = "pure_function") -> Ho
 def hop_add_i(hop0:Hoppings, i:int, hopi:Dict[AtomicIndex, np.complex128],
                operation_type = "pure_function") -> Hoppings:
     """
-    add the second argument to the first one, "out" controls the output
+    add the second argument to the first one, 
+    "operation_type" controls whether the operation is "pure_function" or "inplace"
     """
     if operation_type == "pure_function":
         hop0_copy = hop_copy(hop0)

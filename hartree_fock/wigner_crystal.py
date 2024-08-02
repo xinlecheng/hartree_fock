@@ -50,12 +50,6 @@ def read_hoppings(file_path) -> spcl.Hoppings:
                      #translate into numbers, note that entries[0] is shifted to start from 0
     return(hoppings)
 
-# def site_dir_coord(i: int) -> np.ndarray:
-#     if i == 0:
-#         return arr([1/3, 2/3])
-#     else:
-#         return arr([2/3, 1/3])
-
 if __name__ == "__main__":
     theta = 4.0*(np.pi)/180
     a_m = 1/theta
@@ -66,38 +60,25 @@ if __name__ == "__main__":
     site_dir_coord = [arr([1/3, 2/3]), arr([2/3, 1/3])]
     cellprim = spcl.Cell(rsdirtocar, privec, 2, site_dir_coord)
     hoppings = read_hoppings('./hoppings.dat')
+    delta = 0.0 #displacement field
+    for i in range(cellprim.num_sites):
+        hop_funs.hop_add_i(hoppings, i, {hop_funs.AtomicIndex(i,(0,0)): -(-1)**i*delta/2}, "inplace") #apply displacement field
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
     nmx = 3
     nmy = 3
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
-    kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
+    hz_field = 0.0
+    hop_funs.hop_apply_h(sps_sd.hoppings, 
+                         arr([[0, 0, hz_field] for i in range(sps_sd.cell.num_sites//2)]), "inplace") #apply magnetic field
+    
+    #kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
     #bs = spcl.bandstructure(sps_ec, kline)
     #plt.list_plot(bs)
-    #print(sps_prim.hoppings[0][hop_funs.AtomicIndex(1,(0,0))])
-
-    # wavfuns = spcl.wavefunctions(sps_prim, [(0,0)])
-    # print(wavfuns[(0,0)].eigvals)
-    # wavfuns = spcl.wavefunctions(sps_sd, [(0,0)])
-    # print(wavfuns[(0,0)].eigvals)
-    # wavfuns = spcl.wavefunctions(sps_ec, [(0,0)])
-    # print(wavfuns[(0,0)].eigvals)
+    
     vdd = interaction.truncated_coulomb(sps_sd.cell, 0.186, 6*a_m + 0.1, 436/2)
-    #print(len(vdd[0])) #db
     kgrid = hartree_fock_solvers.Kgrid((0,0),(4,4))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
-    #seed = arr([-1,0,-1,0,0,0,-1,0,0,0,-1,0,0,0,-1,0,-1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0])*100
-    #print(seed)
     hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=8.0, 
                                              save_den_results=True, save_output=True, saving_dir='./results')
-    # eig_states = spcl.eigstate_flatten_sort(sps_sd, [arr([i/kgrid.enlargement[0], j/kgrid.enlargement[1]]) 
-    #          for i in range(kgrid.enlargement[0]) 
-    #          for j in range(kgrid.enlargement[1])])
-    # occ_states = itertools.islice(eig_states, 0, 36*4//6)
-    #self_energy = hartree_fock_solvers.self_energy_init(sps_sd,vdd,1/6,kgrid,seed)
-    #print(sps_1.hoppings[6][hop_funs.AtomicIndex(16,(-1,-1))])
-    #print(self_energy[6][hop_funs.AtomicIndex(16,(-1,-1))])
-    #print(hoppings[0][hop_funs.AtomicIndex(0,(-2,-1))])
-    # print(f"{np.real(spcl.hamiltonian(sps_sd,arr([0,0]))[0,0]):0.15f}")
-    # print(eigvalsh(spcl.hamiltonian(sps_sd,arr([0,0]))))
