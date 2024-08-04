@@ -81,4 +81,4 @@ if __name__ == "__main__":
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
     hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=8.0, 
-                                             save_den_results=True, save_output=True, saving_dir='./results')
+                                             save_den_plots=True, save_output=True, saving_dir='./results')

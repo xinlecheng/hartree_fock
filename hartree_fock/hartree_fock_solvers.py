@@ -104,7 +104,8 @@ def self_energy_init(sps0:spcl.SingleParticleSystem, vdd:interaction.density_den
 
 def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_density_type,
                         filling:np.float128, kgrid:Kgrid, controller: Controller, seed, noise = 0.0,
-                        save_den_results=False, save_output=False, saving_dir='/', output_comment='\n') -> None:
+                        save_den_plots=False, save_output=False, saving_dir='/', output_comment='\n',
+                        den_plots_suffix = '', output_suffix = '') -> None:
     
     privec = sps0.cell.prim_vecs_dir
     dirtocar = sps0.cell.dirtocar
@@ -165,15 +166,16 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
             break
     #print(plot_functions.vector_format(np.real(den))) #db
     
-    if save_den_results:
+    if save_den_plots:
         plot_functions.spin_plot(sps0.cell, occ_states, savefig=True, showfig=False, 
-                                 save_format = os.path.join(saving_dir, 'cs_den_plot.png'))
+                                 save_format = os.path.join(saving_dir, 'cs_den_plot'+den_plots_suffix+'.png'))
     if save_output:
-        filename = os.path.join(saving_dir, 'output')
+        filename = os.path.join(saving_dir, 'output'+output_suffix)
         if not os.path.exists(filename):
             with open(filename, 'w') as file:
-                file.write(output_comment)
+                file.write('\n')
         with open(filename, 'a') as file:
+            file.write(output_comment)
             file.write(f"convergence = ( {ite_cycle}, {cvg:.4f})\n")
             file.write(f"energy_per_electron = {free_energy/num_ele:.4f}\n")
             file.write(f"mean_field_gap = " 

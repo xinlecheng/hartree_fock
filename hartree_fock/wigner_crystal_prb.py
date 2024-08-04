@@ -84,6 +84,9 @@ if __name__ == "__main__":
     parser.add_argument('--hubbard_u', type=float) #0.2
     #parser.add_argument('cutoff', type=int) #6
     parser.add_argument('--scaling', type=float) #436 for epsilon=10
+    parser.add_argument('--noise', type=float, default=0.0) #8.0
+    parser.add_argument('--den_plots_suffix', type=str, default='')
+    parser.add_argument('--output_suffix', type=str, default='')
     args = parser.parse_args()
     #vdd = interaction.truncated_coulomb(sps_sd.cell, args.hubbard_u, args.cutoff*a_m + 0.1, args.scaling)
     #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 436/2)
@@ -93,5 +96,7 @@ if __name__ == "__main__":
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_honcomb_seed_trilattice(nmx,nmy)*100
-    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/3, kgrid, controller, seed, noise=0.0,
-                                             save_den_results=True, save_output=True, saving_dir='./results')
+    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/3, kgrid, controller, seed, noise=args.noise,
+                                             save_den_plots=True, save_output=True, saving_dir='./results',
+                                             output_comment = f"hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
+                                             den_plots_suffix=args.den_plots_suffix, output_suffix=args.output_suffix)

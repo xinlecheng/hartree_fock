@@ -90,5 +90,5 @@ if __name__ == "__main__":
     seed = seed_generation.fmz_unif_seed_honcomblattice(nmx,nmy)*100
     hartree_fock_solvers.hartree_fock_solver(
         sps_sd, vdd, 1/4, kgrid, controller, seed, noise = 2.0,
-        save_den_results=True, save_output=True, saving_dir='./results/')
+        save_den_plots=True, save_output=True, saving_dir='./results/')
     print("calculation complete!")
