@@ -75,8 +75,8 @@ if __name__ == "__main__":
                  AtomicIndex(0,(-1,-1)):t
                  }]
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 12
-    nmy = 12
+    nmx = 6
+    nmy = 6
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
     kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
