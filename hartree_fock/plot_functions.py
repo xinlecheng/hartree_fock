@@ -59,6 +59,20 @@ def den_subplot(ax:plt.Axes, cell:spcl.Cell, den, title=''):
     ax.set_aspect("equal")
     ax.set_title(title)
 
+def cs_den_total(cell:spcl.Cell, occ_states:List[spcl.EigenState]):
+    s0 = np.array([[1,0],[0,1]])
+    sx = np.array([[0,1],[1,0]])
+    sy = np.array([[0,-1j],[1j,0]])
+    sz = np.array([[1,0],[0,-1]])
+    sv = [s0, sx, sy, sz]
+    num_sites = cell.num_sites//2
+    def calculate_cs_den(bloch_fun:np.ndarray, i:int):
+        spinor_i = np.array([bloch_fun[i], bloch_fun[i+num_sites]])
+        return np.array([np.real(dot(np.conjugate(spinor_i), dot(s, spinor_i))) for s in sv])
+    cs_den_total = sum(calculate_cs_den(occ.bloch_fun, i) 
+                       for occ in occ_states for i in range(cell.num_sites//2))
+    return cs_den_total
+
 def spin_plot(cell:spcl.Cell, occ_states:List[spcl.EigenState], showfig=False, savefig=False, 
               save_format='tem.png', title=''):
     s0 = np.array([[1,0],[0,1]])

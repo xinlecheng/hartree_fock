@@ -180,6 +180,11 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
             file.write(f"energy_per_electron = {free_energy/num_ele:.4f}\n")
             file.write(f"mean_field_gap = " 
                        f"{eigen_states[num_ele].energy - eigen_states[num_ele-1].energy:.4f}\n")
+            cs_den_total = plot_functions.cs_den_total(sps0.cell, occ_states)
+            file.write(f"per_supercell(charge = {cs_den_total[0]:.1f}):\n")
+            file.write(f"sx = {cs_den_total[1]:.1f}, "
+                       f"sy = {cs_den_total[2]:.1f}, sz = {cs_den_total[3]:.1f}\n")
+            file.write("\n")
     #return ((ite_cycle, cvg), free_energy/num_ele,
     #            eigen_states[num_ele].energy - eigen_states[num_ele-1].energy)
     #eigen_states = spcl.eigstate_flatten_sort(sps, kpts)
