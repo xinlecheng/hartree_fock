@@ -97,3 +97,7 @@ def fmz_stripe_seed_trilattice(nmx:int, nmy:int) -> np.ndarray:
         else:
              seed.append([0, 0, 0])
     return np.array(seed)
+
+def fmz_noise_honcomblattice(nmx:int, nmy:int) -> np.ndarray:
+    num_sites = 4*nmx*nmy
+    return np.array([[0, 0, np.random.uniform(-1,0)] for i in range(num_sites//2)])

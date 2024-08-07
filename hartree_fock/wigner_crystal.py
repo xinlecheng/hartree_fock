@@ -8,6 +8,7 @@ import hartree_fock_solvers
 import numpy as np
 from typing import Dict, List
 import itertools
+import argparse
 
 def arr(*arg):
     return np.array(*arg)
@@ -60,15 +61,26 @@ if __name__ == "__main__":
     site_dir_coord = [arr([1/3, 2/3]), arr([2/3, 1/3])]
     cellprim = spcl.Cell(rsdirtocar, privec, 2, site_dir_coord)
     hoppings = read_hoppings('./hoppings.dat')
-    delta = 0.0 #displacement field
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--delta', type=float)
+    parser.add_argument('--hfield', type=float)
+    parser.add_argument('--hubbard_u', type=float) #0.2
+    #parser.add_argument('cutoff', type=int) #6
+    parser.add_argument('--scaling', type=float) #436 for epsilon=10
+    parser.add_argument('--noise', type=float, default=0.0) #8.0
+    parser.add_argument('--den_plots_suffix', type=str, default='')
+    parser.add_argument('--output_suffix', type=str, default='')
+    args = parser.parse_args()
+    delta = args.delta #displacement field
     for i in range(cellprim.num_sites):
         hop_funs.hop_add_i(hoppings, i, {hop_funs.AtomicIndex(i,(0,0)): -(-1)**i*delta/2}, "inplace") #apply displacement field
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 3
-    nmy = 3
+    nmx = 6
+    nmy = 6
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
-    sps_sd = sps_ec.spin_duplicate()
-    hz_field = 0.0
+    #sps_sd = sps_ec.spin_duplicate()
+    sps_sd = (sps_ec.spin_duplicate()).apply_pbc()
+    hz_field = -(args.hfield)/2
     hop_funs.hop_apply_h(sps_sd.hoppings, 
                          arr([[0, 0, hz_field] for i in range(sps_sd.cell.num_sites//2)]), "inplace") #apply magnetic field
     
@@ -76,9 +88,14 @@ if __name__ == "__main__":
     #bs = spcl.bandstructure(sps_ec, kline)
     #plt.list_plot(bs)
     
-    vdd = interaction.truncated_coulomb(sps_sd.cell, 0.186, 6*a_m + 0.1, 436/2)
-    kgrid = hartree_fock_solvers.Kgrid((0,0),(4,4))
+    #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 436/2)
+    vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24)
+    print("vdd constructed!")
+    kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
-    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=8.0, 
-                                             save_den_plots=True, save_output=True, saving_dir='./results')
+    seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
+    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
+                                             save_den_plots=True, save_output=True, saving_dir='./results',
+                                             output_comment = f"hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
+                                             den_plots_suffix=args.den_plots_suffix, output_suffix=args.output_suffix)

@@ -8,10 +8,16 @@ def dot(*arg):
 
 def list_plot(datasets):
     plt.figure()
-    for data in datasets:
-        x, y  = zip(*data)
+    if hasattr(datasets[0][0], '__len__'):
+        for data in datasets:
+            x, y  = zip(*data)
+            plt.plot(x, y, marker='o')
+    else:
+        x, y  = zip(*datasets)
         plt.plot(x, y, marker='o')
     plt.show()
+    plt.close()
+
 def den_plot(cell: spcl.Cell, den):
     a_m = np.linalg.norm(cell.dirtocar[:,0])
     radius = 0.25*a_m
@@ -33,6 +39,7 @@ def den_plot(cell: spcl.Cell, den):
     ax.set_ylim(y_min-radius, y_max+radius)
     ax.set_aspect("equal")
     plt.show()
+    plt.close()
 
 def den_subplot(ax:plt.Axes, cell:spcl.Cell, den, title=''):
     """
@@ -101,6 +108,7 @@ def spin_plot(cell:spcl.Cell, occ_states:List[spcl.EigenState], showfig=False, s
         fig.savefig(save_format)
     if showfig:
         plt.show()
+    plt.close()
 
 def element_format(x):
     return f"{x:.2f}"

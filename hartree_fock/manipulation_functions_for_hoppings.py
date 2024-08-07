@@ -67,7 +67,7 @@ def hop_add(hop0:Hoppings, hop:Hoppings, operation_type = "pure_function") -> Ho
         num_sites = len(hop0)
         for i in range(num_sites):
             for ind in hop[i]:
-                if ind in hop0[i]:
+                if ind in hop0_copy[i]:
                     hop0_copy[i][ind] += hop[i][ind]
                 else:
                     hop0_copy[i][ind] = hop[i][ind]

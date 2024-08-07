@@ -185,6 +185,7 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
             file.write(f"sx = {cs_den_total[1]:.1f}, "
                        f"sy = {cs_den_total[2]:.1f}, sz = {cs_den_total[3]:.1f}\n")
             file.write("\n")
+    return sigma_new
     #return ((ite_cycle, cvg), free_energy/num_ele,
     #            eigen_states[num_ele].energy - eigen_states[num_ele-1].energy)
     #eigen_states = spcl.eigstate_flatten_sort(sps, kpts)

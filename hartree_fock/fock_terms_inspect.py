@@ -75,28 +75,34 @@ if __name__ == "__main__":
                  AtomicIndex(0,(-1,-1)):t
                  }]
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 6
-    nmy = 6
+    nmx = 12
+    nmy = 12
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
-    sps_sd = sps_ec.spin_duplicate()
+    sps_sd = (sps_ec.spin_duplicate()).apply_pbc()
     kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
-    parser = argparse.ArgumentParser()
-    parser.add_argument('--hubbard_u', type=float) #0.2
-    #parser.add_argument('cutoff', type=int) #6
-    parser.add_argument('--scaling', type=float) #436 for epsilon=10
-    parser.add_argument('--noise', type=float, default=0.0) #8.0
-    parser.add_argument('--den_plots_suffix', type=str, default='')
-    parser.add_argument('--output_suffix', type=str, default='')
-    args = parser.parse_args()
-    #vdd = interaction.truncated_coulomb(sps_sd.cell, args.hubbard_u, args.cutoff*a_m + 0.1, args.scaling)
-    #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 436/2)
-    #vdd = interaction.pbc_coulomb(sps_sd.cell, 0.2, 436/2, inf=6, shell=0.001, subtract_offset=False)
-    vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24)
-    #print("vdd constructed!")
+    vdd = interaction.pbc_coulomb(sps_sd.cell, 0.2, 118, inf=24)
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_honcomb_seed_trilattice(nmx,nmy)*100
-    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/3, kgrid, controller, seed, noise=args.noise,
+    sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/3, kgrid, controller, seed, noise=0.0,
                                              save_den_plots=True, save_output=True, saving_dir='./results',
-                                             output_comment = f"hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
-                                             den_plots_suffix=args.den_plots_suffix, output_suffix=args.output_suffix)
+                                             output_comment = "\n")
+    hop_scf = hop_funs.hop_add(sps_sd.hoppings, sigma_new)
+    def hop_vs_distance(cell: spcl.Cell, hop: hop_funs.Hoppings, i: int):
+        sitedir = cell.sitedir
+        privec = cell.prim_vecs_dir
+        dirtocar = cell.dirtocar
+        num_sites = cell.num_sites
+        hop_list = [(np.linalg.norm(dot(dirtocar, sitedir[ind.sitelabel] - sitedir[i] + dot(ind.bravis,privec))),
+                    np.abs(hop[i][ind])) for ind in hop[i]]
+        hop_list.sort(key=lambda x: x[0])
+        return hop_list
+    hop_list = hop_vs_distance(sps_sd.cell, hop_scf, 14) #14
+    # print(hop_scf[0][AtomicIndex(1,(0,0))])
+    # print(hop_scf[0][AtomicIndex(6,(0,0))])
+    # print(hop_scf[0][AtomicIndex(7,(0,0))])
+    # print(hop_scf[0][AtomicIndex(5,(0,0))])
+    # print(hop_scf[0][AtomicIndex(35,(0,0))])
+    # print(hop_scf[0][AtomicIndex(30,(0,0))])
+    #print(hop_list)
+    plt.list_plot(hop_list[1:])

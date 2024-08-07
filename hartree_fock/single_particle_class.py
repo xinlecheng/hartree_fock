@@ -100,6 +100,23 @@ class SingleParticleSystem:
         hop_sd = hop_funs.hop_copy(self.hoppings) +\
               hop_funs.hop_spin_conjugate(self.hoppings)
         return SingleParticleSystem(cell_sd, hop_sd)
+    
+    def apply_pbc(self) -> "SingleParticleSystem":
+        """
+        apply periodic boundary condition to the system
+        """
+        num_sites = self.cell.num_sites
+        hop0 = self.hoppings
+        hop = [dict() for i in range(num_sites)]
+        for i in range(num_sites):
+            for ind0 in hop0[i]:
+                ind = AtomicIndex(ind0.sitelabel, (0,0))
+                if ind in hop[i]:
+                    hop[i][ind] += hop0[i][ind0]
+                else:
+                    hop[i][ind] = hop0[i][ind0]
+        return SingleParticleSystem(self.cell._deep_copy(), hop)
+    
 
 def sps_add_hop(sps:SingleParticleSystem, hop:Hoppings, operation_type = "pure_function") -> SingleParticleSystem:
     if operation_type == "pure_function":
