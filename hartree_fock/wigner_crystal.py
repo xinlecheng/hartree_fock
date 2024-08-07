@@ -75,8 +75,8 @@ if __name__ == "__main__":
     for i in range(cellprim.num_sites):
         hop_funs.hop_add_i(hoppings, i, {hop_funs.AtomicIndex(i,(0,0)): -(-1)**i*delta/2}, "inplace") #apply displacement field
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 6
-    nmy = 6
+    nmx = 12
+    nmy = 12
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     #sps_sd = sps_ec.spin_duplicate()
     sps_sd = (sps_ec.spin_duplicate()).apply_pbc()
