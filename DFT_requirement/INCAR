@@ -1,0 +1,60 @@
+##NiI2 relax
+  SYSTEM    = NiI2
+
+!!starting parameters
+  ISTART    = 0  # 0-new  1-orbitals from WAVECAR
+  ICHARG    = 2  # 1-file  2-atom  10-const
+  ISYM      = -1  # whether symmetry is switch on
+
+!!Electronic minimization
+  ENCUT     = 350  # Ni-  I-
+  ALGO      = Normal  # can be FAST or ALL
+  NELM      = 60  # of maximum ELM steps
+  NELMIN    = 6  # of minimum ELM steps
+  EDIFF     = 1E-5  # stopping-criterion for ELM
+ !broading and DOS related values
+  SIGMA     = 0.05
+  ISMEAR    = 0  # -4-tet  -1-fermi  0-gaus
+ !performance optimization
+  LREAL     = .False.
+  NCORE     = 12  # one orbital handled by 4 cores
+
+!!ionic relaxation
+  IBRION    = 2  # 2-CG -1-no relaxation 
+  NSW       = 20  # of maximum IRM steps 
+  EDIFFG    = -1E-3  # stopping-criterion for IOM, minus-force criterion
+  POTIM     = 0.5  # step for ionic motion
+ !phonon
+  POTIM     = 0.015
+  NFREE     = 2
+
+!!relativistic and magnetism
+  LSORBIT   = .False.  # spin-orbit coupling
+  LNONCOLLINEAR  = .True.  # non-collinear magnetism
+  VOSKOWN   = 0  # irrelevant for PBE functional
+ !DFT+U settings
+  LDAU      = .True.  # DFT+U scheme
+  LDAUTYPE  = 2
+  LDAUL     = 2 -1  # specify orbital l-number to add U for each atom 
+  LDAUU     = 4.00 0.00  # fit experiment to determine Us
+  LDAUJ     = 0.00 0.00  # on-site energy for different orbitals
+  LDAUPRINT = 2  # verbosity of DFT+U calculation
+  LMAXMIX   = 4  # l-number handled by the mixer, 4 for d electrons in DFT+U
+ !magnetization initialize
+  ISPIN     = 2  # collinear spin-polarized calculation
+  MAGMOM    = 0 0 2 6*0  # magnetic moments of each atom
+  SAXIS     = 0 0 1  # spin quantization axis
+   
+!!mixer
+  AMIX      = 0.2  # mixing of charge density
+  BMIX      = 0.00001  # maximize BMIX according to Gamma_mean
+  AMIX_MAG  = 0.8  # mixing of magnetization density
+  BMIX_MAG  = 0.00001
+
+!!output control
+  LORBIT    = 11
+  LWAVE     = .False.
+  LCHAGR    = .False.
+  LORBMOM   = T  # orbital moments
+
+##end of INCAR
