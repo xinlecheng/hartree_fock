@@ -1,9 +1,14 @@
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument('dis_upper_dir_0', type=float)
+parser.add_argument('dis_upper_dir_1', type=float)
+args = parser.parse_args()
 h0 = 13.54295
 h_ms = h0*(0.37222232-0.25)
 h_mm = h0*0.5
 h = 50.0
-dis_upper_dir = (0.0, 0.0)
-with open('./DFT_requirement/POSCAR', 'w') as file:
+dis_upper_dir = (args.dis_upper_dir_0, args.dis_upper_dir_1)
+with open('./POSCAR', 'w') as file:
     file.write("Mo2 Se4\n")
     file.write("1.0\n")
     file.write("1.6611300941223299   -2.8771617210015465    0.0000000000000000\n")
