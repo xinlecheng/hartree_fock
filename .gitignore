@@ -7,6 +7,9 @@ slurm_out/
 # Ignore .sh
 *.sh
 
+# Ignore .ipynb
+*.ipynb
+
 # Ignore virtual environment
 venv/
 
