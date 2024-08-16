@@ -68,7 +68,7 @@ def pbc_coulomb(cell_sd: single_particle_class.Cell, hubbard_u, scaling = 1,
     privec = cell_sd.prim_vecs_dir
     a_m = np.linalg.norm(dirtocar[:,0]) #the moire lattice constant
     
-    cutoff = (inf + shell)*a_m # in practice need to choose a value for inf, for instance 24
+    cutoff = (inf + shell)*a_m + 0.1 # in practice need to choose a value for inf, for instance 24
     inner_cutoff = inf*a_m
     decay_width = shell*a_m/2 # decay width=shell_width/2,  can also be tuned
     num_bravis_x = int_ceil(2/np.sqrt(3)*cutoff/np.linalg.norm(dot(dirtocar,privec[0])))
@@ -88,6 +88,7 @@ def pbc_coulomb(cell_sd: single_particle_class.Cell, hubbard_u, scaling = 1,
                     if np.linalg.norm(dot(dirtocar, dot(bravis, privec))) <= cutoff) - hubbard_u*scaling #exclude onsite interaction
     else:
         offset = 0.0
+    print("offset = ", offset) #db
     vint = [dict() for i in range(num_sites)]
     for i in range(num_sites):
         vint[i] = {AtomicIndex(j, (0,0)): sum(vr(np.linalg.norm(dot(dirtocar, dot(bravis, privec) + sitedir[j] - sitedir[i])))

@@ -79,7 +79,7 @@ if __name__ == "__main__":
     nmy = 12
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     #sps_sd = sps_ec.spin_duplicate()
-    sps_sd = (sps_ec.spin_duplicate()).apply_pbc()
+    sps_sd = (sps_ec.spin_duplicate()).apply_pbc() #periodic boundary condition
     hz_field = -(args.hfield)/2
     hop_funs.hop_apply_h(sps_sd.hoppings, 
                          arr([[0, 0, hz_field] for i in range(sps_sd.cell.num_sites//2)]), "inplace") #apply magnetic field
@@ -88,14 +88,18 @@ if __name__ == "__main__":
     #bs = spcl.bandstructure(sps_ec, kline)
     #plt.list_plot(bs)
     
-    #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 436/2)
-    vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24)
+    #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 320)
+    vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=6, subtract_offset=True)
     print("vdd constructed!")
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
-    seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
-    hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
+    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*16
+    seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*8
+    sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
                                              save_den_plots=True, save_output=True, saving_dir='./results',
-                                             output_comment = f"hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
+                                             output_comment = f"delta = {args.delta}, hfield = {args.hfield}, hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
                                              den_plots_suffix=args.den_plots_suffix, output_suffix=args.output_suffix)
+    # sps_scf = spcl.sps_add_hop(sps_sd, sigma_new)
+    # kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
+    # bs = spcl.bandstructure(sps_scf, kline)
+    # plt.list_plot(bs)

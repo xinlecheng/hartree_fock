@@ -16,6 +16,8 @@ def dot(*arg):
 pi = np.pi
 def inv(*arg):
     return np.linalg.inv(*arg)
+def conjugate(*arg):
+    return np.conjugate(*arg)
 def transpose(*arg):
     return np.transpose(*arg)
 def exp(arg):
@@ -102,6 +104,21 @@ def self_energy_init(sps0:spcl.SingleParticleSystem, vdd:interaction.density_den
     hop_funs.hop_apply_h(sigma_tem, noise_mats, "inplace")
     return sigma_tem
 
+def gap_correction(cell:spcl.Cell, vdd:interaction.density_density_type, excit:spcl.EigenState, hole:spcl.EigenState) -> float:
+    privec = cell.prim_vecs_dir
+    dirtocar = cell.dirtocar
+    sitedir = cell.sitedir
+    ktocar = spcl.fracktocar(dirtocar, privec)
+    inner_dsdir_kfrac = dot(transpose(dirtocar), ktocar)
+    def ele_hole_int_partial(excit:spcl.EigenState, hole:spcl.EigenState, 
+                            vddi:Dict[AtomicIndex, np.complex128], ind: AtomicIndex, i:int) -> float:
+        j = ind.sitelabel
+        dsdir = dot(ind.bravis, privec) + sitedir[j] - sitedir[i]
+        return -vddi[ind]*(conjugate(hole.bloch_fun[i])*hole.bloch_fun[i]*conjugate(excit.bloch_fun[j])*excit.bloch_fun[j] - 
+                           conjugate(hole.bloch_fun[j])*hole.bloch_fun[i]*conjugate(excit.bloch_fun[i])*excit.bloch_fun[j]*
+                           exp(1j*dot(dsdir, dot(inner_dsdir_kfrac, excit.kvec)) - 1j*dot(dsdir, dot(inner_dsdir_kfrac, hole.kvec))))
+    return np.real(sum(ele_hole_int_partial(excit, hole, vdd[i], ind, i) for i in range(cell.num_sites) for ind in vdd[i]))
+
 def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_density_type,
                         filling:np.float128, kgrid:Kgrid, controller: Controller, seed, noise = 0.0,
                         save_den_plots=False, save_output=False, saving_dir='/', output_comment='\n',
@@ -165,6 +182,7 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
         if ite_cycle > 0 and cvg < cvg_crit:
             break
     #print(plot_functions.vector_format(np.real(den))) #db
+    gap_corr_val = gap_correction(sps0.cell, vdd, eigen_states[num_ele], eigen_states[num_ele-1])
     
     if save_den_plots:
         plot_functions.spin_plot(sps0.cell, occ_states, savefig=True, showfig=False, 
@@ -180,6 +198,8 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
             file.write(f"energy_per_electron = {free_energy/num_ele:.4f}\n")
             file.write(f"mean_field_gap = " 
                        f"{eigen_states[num_ele].energy - eigen_states[num_ele-1].energy:.4f}\n")
+            file.write(f"corrected_gap = "
+                       f"{eigen_states[num_ele].energy - eigen_states[num_ele-1].energy + gap_corr_val:.4f}\n")
             cs_den_total = plot_functions.cs_den_total(sps0.cell, occ_states)
             file.write(f"per_supercell(charge = {cs_den_total[0]:.1f}):\n")
             file.write(f"sx = {cs_den_total[1]:.1f}, "
