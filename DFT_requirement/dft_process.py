@@ -2,7 +2,7 @@ import argparse
 parser = argparse.ArgumentParser()
 parser.add_argument('dis_upper_dir_0', type=float)
 parser.add_argument('dis_upper_dir_1', type=float)
-parser.add_argument('h_mm_scale', type=float, default=1.0)
+parser.add_argument('--h_mm_scale', type=float, default=1.0)
 args = parser.parse_args()
 h_ms = 1.6680535
 h_mm = 7.268859*args.h_mm_scale
