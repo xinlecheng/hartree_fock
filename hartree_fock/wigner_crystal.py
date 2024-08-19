@@ -93,7 +93,7 @@ if __name__ == "__main__":
     print("vdd constructed!")
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
+    seed = seed_generation.afmz_honcomb_seed_honcomblattice(nmx,nmy)*100
     seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
     sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
                                              save_den_plots=True, save_output=True, saving_dir='./results',
