@@ -75,8 +75,8 @@ if __name__ == "__main__":
     for i in range(cellprim.num_sites):
         hop_funs.hop_add_i(hoppings, i, {hop_funs.AtomicIndex(i,(0,0)): -(-1)**i*delta/2}, "inplace") #apply displacement field
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 12
-    nmy = 12
+    nmx = 9
+    nmy = 9
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     #sps_sd = sps_ec.spin_duplicate()
     sps_sd = (sps_ec.spin_duplicate()).apply_pbc() #periodic boundary condition
@@ -93,8 +93,8 @@ if __name__ == "__main__":
     print("vdd constructed!")
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*16
-    seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*8
+    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
+    seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
     sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
                                              save_den_plots=True, save_output=True, saving_dir='./results',
                                              output_comment = f"delta = {args.delta}, hfield = {args.hfield}, hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",

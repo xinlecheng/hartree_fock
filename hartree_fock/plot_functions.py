@@ -6,7 +6,7 @@ from typing import List
 def dot(*arg):
     return np.matmul(*arg)
 
-def list_plot(datasets):
+def list_plot(datasets, aspect_ratio=1):
     plt.figure()
     if hasattr(datasets[0][0], '__len__'):
         for data in datasets:
@@ -15,6 +15,7 @@ def list_plot(datasets):
     else:
         x, y  = zip(*datasets)
         plt.plot(x, y, marker='o')
+    plt.gca().set_aspect(aspect_ratio)
     plt.show()
     plt.close()
 
