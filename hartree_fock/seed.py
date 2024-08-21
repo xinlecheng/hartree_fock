@@ -21,6 +21,32 @@ def fmx_unif_seed_honcomblattice(nmx:int, nmy:int) -> np.ndarray:
     seed that generate ferroz uniform configuration on honeycomb lattice
     """
     return np.array([[-1,0,0] for i in range(nmx*nmy*2)])
+def fmz_3over5_seed_honcomblattice(nmx:int, nmy:int) -> np.ndarray:
+    '''
+    seed that generate ferroz configuration for 3/5 filling on honeycomb lattice
+    '''
+    num_s_prim = 2
+    def atind_ec_to_prim(ind: AtomicIndex) -> AtomicIndex:
+            i_prim = np.mod(ind.sitelabel, num_s_prim)
+            prim_cell_label = int_floor(ind.sitelabel/num_s_prim)
+            bravis_prim = (int_floor(prim_cell_label/nmy) + ind.bravis[0]*nmx,
+                           np.mod(prim_cell_label, nmy) + ind.bravis[1]*nmy)
+            return AtomicIndex(i_prim, bravis_prim)
+    seed = []
+    for i in range(nmx*nmy*2):
+        atind_prim = atind_ec_to_prim(AtomicIndex(i,(0,0)))
+        if atind_prim.sitelabel == 0 and\
+        np.mod(atind_prim.bravis[0],2) == 0 and\
+        np.mod(atind_prim.bravis[1]-atind_prim.bravis[0]//2, 5) <= 2:
+             seed.append([0, 0, -1])
+        elif atind_prim.sitelabel == 0 and\
+        np.mod(atind_prim.bravis[0],2) == 1 and\
+        np.mod(atind_prim.bravis[1]-(atind_prim.bravis[0]-5)//2, 5) <= 2:
+             seed.append([0, 0, -1])
+        else:
+             seed.append([0, 0, 0])
+    return np.array(seed)
+ 
 def fmz_honcomb_seed_honcomblattice(nmx:int, nmy:int) -> np.ndarray:
     """
     seed that generate ferroz honeycomb configuration on honeycomb lattice(1/4 filling without spin)

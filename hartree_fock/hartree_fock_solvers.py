@@ -201,7 +201,7 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
             file.write(f"corrected_gap = "
                        f"{eigen_states[num_ele].energy - eigen_states[num_ele-1].energy + gap_corr_val:.4f}\n")
             cs_den_total = plot_functions.cs_den_total(sps0.cell, occ_states)
-            file.write(f"per_supercell(charge = {cs_den_total[0]:.1f}):\n")
+            file.write(f"{privec[0][0]}*{privec[1][1]}_supercell(charge = {cs_den_total[0]:.1f}):\n")
             file.write(f"sx = {cs_den_total[1]:.1f}, "
                        f"sy = {cs_den_total[2]:.1f}, sz = {cs_den_total[3]:.1f}\n")
             file.write("\n")
