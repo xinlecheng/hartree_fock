@@ -1,3 +1,6 @@
+# Ignore restart files
+*.pkl
+
 # Ignore results
 results/
 
