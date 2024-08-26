@@ -96,7 +96,7 @@ if __name__ == "__main__":
     print("vdd constructed!")
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_unif_seed_honcomblattice(nmx,nmy)*2
+    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*2
     seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
     if args.read_restart:
         with open('./seed_restart.pkl', 'rb') as file:
