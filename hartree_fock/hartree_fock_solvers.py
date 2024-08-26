@@ -74,7 +74,7 @@ def self_energy_init(sps0:spcl.SingleParticleSystem, vdd:interaction.density_den
         else:
             raise(TypeError("wrong seed type!"))
     else:
-        sigma_0 = hop_funs.hop_add(seed, hop_funs.hop_mul(sps0, -1)) #restart option
+        sigma_0 = seed #hop_funs.hop_add(seed, hop_funs.hop_mul(sps0, -1)) #restart option
 
     eigen_states = spcl.eigstate_flatten_sort(spcl.sps_add_hop(sps0, sigma_0), kpts)
     #print(float(eigen_states[0].energy)) #db
@@ -204,6 +204,9 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
             file.write(f"{privec[0][0]}*{privec[1][1]}_supercell(charge = {cs_den_total[0]:.1f}):\n")
             file.write(f"sx = {cs_den_total[1]:.1f}, "
                        f"sy = {cs_den_total[2]:.1f}, sz = {cs_den_total[3]:.1f}\n")
+            sz_excit = sum(abs(eigen_states[num_ele].bloch_fun[i])**2 for i in range(num_sites//2))*num_kpts -\
+                  sum(abs(eigen_states[num_ele].bloch_fun[i])**2 for i in range(num_sites//2, num_sites))*num_kpts
+            file.write(f"sz of the first excited state = {sz_excit:.4f}\n")
             file.write("\n")
     return sigma_new
     #return ((ite_cycle, cvg), free_energy/num_ele,

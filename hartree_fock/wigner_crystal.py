@@ -9,6 +9,7 @@ import numpy as np
 from typing import Dict, List
 import itertools
 import argparse
+import pickle
 
 def arr(*arg):
     return np.array(*arg)
@@ -70,6 +71,8 @@ if __name__ == "__main__":
     parser.add_argument('--noise', type=float, default=0.0) #8.0
     parser.add_argument('--den_plots_suffix', type=str, default='')
     parser.add_argument('--output_suffix', type=str, default='')
+    parser.add_argument('--write_restart', action='store_true')
+    parser.add_argument('--read_restart', action='store_true')
     args = parser.parse_args()
     delta = args.delta #displacement field
     for i in range(cellprim.num_sites):
@@ -89,16 +92,23 @@ if __name__ == "__main__":
     #plt.list_plot(bs)
     
     #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 320)
-    vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=True)
+    vdd = interaction.pbc_screened_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=6, subtract_offset=True) #sharp cutoff shell=0.01
     print("vdd constructed!")
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_stripe_seed_honcomblattice(nmx,nmy)*100
+    seed = seed_generation.fmz_stripe_seed_honcomblattice(nmx,nmy)*2
     seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
-    sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/8, kgrid, controller, seed, noise=args.noise,
+    if args.read_restart:
+        with open('./seed_restart.pkl', 'rb') as file:
+            seed = pickle.load(file)
+    sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
                                              save_den_plots=True, save_output=True, saving_dir='./results',
                                              output_comment = f"delta = {args.delta}, hfield = {args.hfield}, hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
                                              den_plots_suffix=args.den_plots_suffix, output_suffix=args.output_suffix)
+    if args.write_restart:
+        with open('./seed_restart.pkl', 'wb') as file:
+            pickle.dump(sigma_new, file)
+
     # sps_scf = spcl.sps_add_hop(sps_sd, sigma_new)
     # kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
     # bs = spcl.bandstructure(sps_scf, kline)
