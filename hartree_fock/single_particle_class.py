@@ -247,6 +247,9 @@ class EigenState:
         rescale the bloch function to a times its original value 
         """
         self._bloch_fun *= a
+    def bloch_fun_density(self) -> np.ndarray:
+        return [(np.abs(e))**2 for e in self._bloch_fun]
+
 
 def eigstate_flatten_sort(sps: SingleParticleSystem, kpts: list) -> List[EigenState]:
     eigstates = []

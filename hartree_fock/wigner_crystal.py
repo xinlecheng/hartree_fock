@@ -62,6 +62,7 @@ if __name__ == "__main__":
     site_dir_coord = [arr([1/3, 2/3]), arr([2/3, 1/3])]
     cellprim = spcl.Cell(rsdirtocar, privec, 2, site_dir_coord)
     hoppings = read_hoppings('./hoppings.dat')
+    #hoppings = hop_funs.hop_mul(hoppings, 0.01) #db
     parser = argparse.ArgumentParser()
     parser.add_argument('--delta', type=float)
     parser.add_argument('--hfield', type=float)
@@ -78,11 +79,11 @@ if __name__ == "__main__":
     for i in range(cellprim.num_sites):
         hop_funs.hop_add_i(hoppings, i, {hop_funs.AtomicIndex(i,(0,0)): -(-1)**i*delta/2}, "inplace") #apply displacement field
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 6
-    nmy = 6
+    nmx = 3
+    nmy = 3
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
-    #sps_sd = sps_ec.spin_duplicate()
-    sps_sd = (sps_ec.spin_duplicate()).apply_pbc() #periodic boundary condition
+    sps_sd = sps_ec.spin_duplicate()
+    #sps_sd = (sps_ec.spin_duplicate()).apply_pbc() #periodic boundary condition
     hz_field = -(args.hfield)/2
     hop_funs.hop_apply_h(sps_sd.hoppings, 
                          arr([[0, 0, hz_field] for i in range(sps_sd.cell.num_sites//2)]), "inplace") #apply magnetic field
@@ -91,12 +92,13 @@ if __name__ == "__main__":
     #bs = spcl.bandstructure(sps_ec, kline)
     #plt.list_plot(bs)
     
-    #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 320)
-    vdd = interaction.pbc_screened_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=6, subtract_offset=True) #sharp cutoff shell=0.01
+    vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 363)
+    #vdd = interaction.pbc_screened_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=False)
+    #vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=True) #sharp cutoff shell=0.01
     print("vdd constructed!")
-    kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
+    kgrid = hartree_fock_solvers.Kgrid((0,0),(4,4))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*2
+    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
     seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
     if args.read_restart:
         with open('./seed_restart.pkl', 'rb') as file:
@@ -108,8 +110,13 @@ if __name__ == "__main__":
     if args.write_restart:
         with open('./seed_restart.pkl', 'wb') as file:
             pickle.dump(sigma_new, file)
-
-    # sps_scf = spcl.sps_add_hop(sps_sd, sigma_new)
-    # kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
-    # bs = spcl.bandstructure(sps_scf, kline)
-    # plt.list_plot(bs)
+    #print(sigma_new[0][spcl.AtomicIndex(0,(0,0))])
+    #print(sigma_new[0][spcl.AtomicIndex(2,(0,0))])
+    #print(sigma_new[0][spcl.AtomicIndex(4,(0,0))])
+    #print(sigma_new[0][spcl.AtomicIndex(6,(0,0))])
+    #print(sigma_new[0][spcl.AtomicIndex(8,(0,0))])
+    #print(sigma_new[0][spcl.AtomicIndex(10,(0,0))])
+    sps_scf = spcl.sps_add_hop(sps_sd, sigma_new)
+    kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
+    bs = spcl.bandstructure(sps_scf, kline)
+    plt.list_plot(bs,aspect_ratio=0.002)

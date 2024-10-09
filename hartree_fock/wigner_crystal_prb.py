@@ -75,8 +75,8 @@ if __name__ == "__main__":
                  AtomicIndex(0,(-1,-1)):t
                  }]
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 6
-    nmy = 6
+    nmx = 15
+    nmy = 15
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
     kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
@@ -91,8 +91,8 @@ if __name__ == "__main__":
     #vdd = interaction.truncated_coulomb(sps_sd.cell, args.hubbard_u, args.cutoff*a_m + 0.1, args.scaling)
     #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 436/2)
     #vdd = interaction.pbc_coulomb(sps_sd.cell, 0.2, 436/2, inf=6, shell=0.001, subtract_offset=False)
-    vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24)
-    #print("vdd constructed!")
+    vdd = interaction.pbc_screened_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=128, shell=0.01, subtract_offset=True)
+    print("vdd constructed!")
     kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
     seed = seed_generation.fmz_honcomb_seed_trilattice(nmx,nmy)*100

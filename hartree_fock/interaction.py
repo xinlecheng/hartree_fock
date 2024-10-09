@@ -45,8 +45,9 @@ def truncated_coulomb(cell_sd: single_particle_class.Cell, hubbard_u, cutoff = 0
                     for bravis_x in range(-num_bravis_x, num_bravis_x+1) for bravis_y in range(-num_bravis_y, num_bravis_y+1)]
     a_m = np.linalg.norm(dirtocar[:,0]) #the moire lattice constant
     def vr(r):
+        tf_screening_length = 3
         if r > 0.1*a_m:
-            return 1/np.sqrt(r**2 + (0.1*a_m)**2)*scaling
+            return exp(-r/(tf_screening_length*a_m))*1/np.sqrt(r**2 + (0.1*a_m)**2)*scaling
         else:
             return hubbard_u*scaling
     vint = [dict() for i in range(num_sites)]
@@ -150,12 +151,12 @@ def pbc_screened_coulomb(cell_sd: single_particle_class.Cell, hubbard_u, scaling
     bravis_range = [(bravis_x, bravis_y) 
                     for bravis_x in range(-num_bravis_x, num_bravis_x+1) for bravis_y in range(-num_bravis_y, num_bravis_y+1)]
     def vr(r):
-        gate_dist = 13
-        tf_screening_length = 240
+        #gate_dist = 240 np.sqrt(r**2 + (gate_dist*a_m)**2)
+        tf_screening_length = 3
         if r > inner_cutoff:
-            return exp(-r/(tf_screening_length*a_m))*(1/np.sqrt(r**2 + (0.1*a_m)**2)-1/np.sqrt(r**2 + (gate_dist*a_m)**2))*scaling*exp(-(r-inner_cutoff)/decay_width)
+            return exp(-r/(tf_screening_length*a_m))*(1/np.sqrt(r**2 + (0.1*a_m)**2))*scaling*exp(-(r-inner_cutoff)/decay_width)
         elif r > 0.1*a_m:
-            return exp(-r/(tf_screening_length*a_m))*(1/np.sqrt(r**2 + (0.1*a_m)**2)-1/np.sqrt(r**2 + (gate_dist*a_m)**2))*scaling
+            return exp(-r/(tf_screening_length*a_m))*(1/np.sqrt(r**2 + (0.1*a_m)**2))*scaling
         else:
             return hubbard_u*scaling
     if subtract_offset:

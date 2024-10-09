@@ -7,6 +7,7 @@ from typing import List, Dict, Tuple
 import itertools
 import plot_functions
 import os
+import io_fun
 
 # region Custom Region
 def arr(*arg):
@@ -144,7 +145,7 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
     num_ele = round(num_sites*num_kpts*filling)
 
     eigen_states:List[spcl.EigenState] = []#forward declaration of the variable
-    def generate_fock_term(occ_states:List[spcl.EigenState], vddi:Dict[AtomicIndex, np.complex128], ind: AtomicIndex):
+    def generate_fock_term(occ_states:List[spcl.EigenState], vddi:Dict[AtomicIndex, np.complex128], i:int, ind: AtomicIndex):
         j = ind.sitelabel
         dsdir = dot(ind.bravis, privec) + sitedir[j] - sitedir[i]
         return -sum(vddi[ind]*np.conjugate(occ.bloch_fun[i])*occ.bloch_fun[j]*\
@@ -165,7 +166,7 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
                                    {AtomicIndex(i,(0,0)): sum(vddi[ind]*den[ind.sitelabel] for ind in vddi)},
                                     "inplace") # hartree term
                 hop_funs.hop_add_i(sigma_tem, i,
-                                   {ind: generate_fock_term(occ_states, vddi, ind) for ind in vddi},
+                                   {ind: generate_fock_term(occ_states, vddi, i, ind) for ind in vddi},
                                    "inplace") # fock terms
         sigma_new = hop_funs.hop_add(hop_funs.hop_mul(sigma_tem, mixing), hop_funs.hop_mul(sigma_old, 1-mixing))
         sps = spcl.sps_add_hop(sps0, sigma_new)
@@ -182,7 +183,10 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
         if ite_cycle > 0 and cvg < cvg_crit:
             break
     #print(plot_functions.vector_format(np.real(den))) #db
-    gap_corr_val = gap_correction(sps0.cell, vdd, eigen_states[num_ele], eigen_states[num_ele-1])
+    #plot_functions.den_plot(sps0.cell, eigen_states[num_ele-1].bloch_fun_density()[:num_sites//2]) #db
+    #plot_functions.den_plot(sps0.cell, eigen_states[num_ele].bloch_fun_density()[:num_sites//2]) #db
+    num_excit_written = 10
+    gap_corr_val = tuple((gap_correction(sps0.cell, vdd, eigen_states[num_ele+i], eigen_states[num_ele-1]) for i in range(num_excit_written)))
     
     if save_den_plots:
         plot_functions.spin_plot(sps0.cell, occ_states, savefig=True, showfig=False, 
@@ -197,16 +201,16 @@ def hartree_fock_solver(sps0:spcl.SingleParticleSystem, vdd:interaction.density_
             file.write(f"convergence = ( {ite_cycle}, {cvg:.4f})\n")
             file.write(f"energy_per_electron = {free_energy/num_ele:.4f}\n")
             file.write(f"mean_field_gap = " 
-                       f"{eigen_states[num_ele].energy - eigen_states[num_ele-1].energy:.4f}\n")
+                       f"{io_fun.tuple_format((eigen_states[num_ele+i].energy - eigen_states[num_ele-1].energy for i in range(num_excit_written)))}\n")
             file.write(f"corrected_gap = "
-                       f"{eigen_states[num_ele].energy - eigen_states[num_ele-1].energy + gap_corr_val:.4f}\n")
+                       f"{io_fun.tuple_format((eigen_states[num_ele+i].energy - eigen_states[num_ele-1].energy + gap_corr_val[i] for i in range(num_excit_written)))}\n")
             cs_den_total = plot_functions.cs_den_total(sps0.cell, occ_states)
             file.write(f"{privec[0][0]}*{privec[1][1]}_supercell(charge = {cs_den_total[0]:.1f}):\n")
             file.write(f"sx = {cs_den_total[1]:.1f}, "
                        f"sy = {cs_den_total[2]:.1f}, sz = {cs_den_total[3]:.1f}\n")
-            sz_excit = sum(abs(eigen_states[num_ele].bloch_fun[i])**2 for i in range(num_sites//2))*num_kpts -\
-                  sum(abs(eigen_states[num_ele].bloch_fun[i])**2 for i in range(num_sites//2, num_sites))*num_kpts
-            file.write(f"sz of the first excited state = {sz_excit:.4f}\n")
+            sz_excit = (sum(abs(eigen_states[num_ele+j].bloch_fun[i])**2 for i in range(num_sites//2))*num_kpts -\
+                  sum(abs(eigen_states[num_ele+j].bloch_fun[i])**2 for i in range(num_sites//2, num_sites))*num_kpts for j in range(num_excit_written))
+            file.write(f"sz of the excited states = {io_fun.tuple_format(sz_excit)}\n")
             file.write("\n")
     return sigma_new
     #return ((ite_cycle, cvg), free_energy/num_ele,

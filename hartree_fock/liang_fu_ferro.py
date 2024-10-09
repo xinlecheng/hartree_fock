@@ -43,7 +43,7 @@ if __name__ == "__main__":
     num_sites = 2
     cellprim = spcl.Cell(rsdirtocar, privec, num_sites, site_dir_coord)
     t_1 = -1.0
-    delta = 0.0/2
+    delta = 2.0/2
     t_so = -0.30
     t_3 = 0.13
     alpha = 2*pi/3
@@ -77,18 +77,19 @@ if __name__ == "__main__":
                 }
                 ]
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 3
-    nmy = 3
+    nmx = 4
+    nmy = 4
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
     kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
    
-    #plt.list_plot(spcl.bandstructure(sps_prim, kline))
-    vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 0*a_m + 0.1, 50)
-    kgrid = hartree_fock_solvers.Kgrid((0,0),(4,4))
+    #plt.list_plot(spcl.bandstructure(sps_sd, kline), aspect_ratio=1/6)
+    vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 2*a_m + 0.1, 50)
+    kgrid = hartree_fock_solvers.Kgrid((0,0),(3,3))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_unif_seed_honcomblattice(nmx,nmy)*100
-    hartree_fock_solvers.hartree_fock_solver(
-        sps_sd, vdd, 1/4, kgrid, controller, seed, noise = 2.0,
-        save_den_plots=True, save_output=True, saving_dir='./results/')
+    seed = seed_generation.fmz_stripe_seed_honcomblattice(nmx,nmy)*10
+    sigma_new = hartree_fock_solvers.hartree_fock_solver(
+        sps_sd, vdd, 1/8, kgrid, controller, seed, noise = 3.0,
+        save_den_plots=True, save_output=True, saving_dir='./results/', den_plots_suffix='_flat', output_suffix='_1_1')
+    #plt.list_plot(spcl.bandstructure(spcl.sps_add_hop(sps_sd, sigma_new), kline), aspect_ratio=1/6)
     print("calculation complete!")
