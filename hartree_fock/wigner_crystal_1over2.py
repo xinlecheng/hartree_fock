@@ -79,8 +79,8 @@ if __name__ == "__main__":
     for i in range(cellprim.num_sites):
         hop_funs.hop_add_i(hoppings, i, {hop_funs.AtomicIndex(i,(0,0)): -(-1)**i*delta/2}, "inplace") #apply displacement field
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 3
-    nmy = 3
+    nmx = 2
+    nmy = 2
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
     #sps_sd = (sps_ec.spin_duplicate()).apply_pbc() #periodic boundary condition
@@ -96,27 +96,16 @@ if __name__ == "__main__":
     #vdd = interaction.pbc_screened_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=False)
     #vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=True) #sharp cutoff shell=0.01
     print("vdd constructed!")
-    kgrid = hartree_fock_solvers.Kgrid((0,0),(4,4))
+    kgrid = hartree_fock_solvers.Kgrid((0,0),(6,6))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
-    seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
+    seed = seed_generation.fmz_stripe_seed_honcomblattice(nmx,nmy)*100
     if args.read_restart:
         with open('./seed_restart.pkl', 'rb') as file:
             seed = pickle.load(file)
-    sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
-                                             save_den_plots=True, save_output=True, saving_dir='./results',
+    sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/8, kgrid, controller, seed, noise=args.noise,
+                                             save_den_plots=True, save_output=True, saving_dir='./results_1over2',
                                              output_comment = f"delta = {args.delta}, hfield = {args.hfield}, hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
                                              den_plots_suffix=args.den_plots_suffix, output_suffix=args.output_suffix)
     if args.write_restart:
         with open('./seed_restart.pkl', 'wb') as file:
             pickle.dump(sigma_new, file)
-    #print(sigma_new[0][spcl.AtomicIndex(0,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(2,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(4,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(6,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(8,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(10,(0,0))])
-    #sps_scf = spcl.sps_add_hop(sps_sd, sigma_new)
-    #kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
-    #bs = spcl.bandstructure(sps_scf, kline)
-    #plt.list_plot(bs,aspect_ratio=0.002)

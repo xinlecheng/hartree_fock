@@ -104,19 +104,9 @@ if __name__ == "__main__":
         with open('./seed_restart.pkl', 'rb') as file:
             seed = pickle.load(file)
     sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
-                                             save_den_plots=True, save_output=True, saving_dir='./results',
+                                             save_den_plots=True, save_output=True, saving_dir='./results_2over3',
                                              output_comment = f"delta = {args.delta}, hfield = {args.hfield}, hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
                                              den_plots_suffix=args.den_plots_suffix, output_suffix=args.output_suffix)
     if args.write_restart:
         with open('./seed_restart.pkl', 'wb') as file:
             pickle.dump(sigma_new, file)
-    #print(sigma_new[0][spcl.AtomicIndex(0,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(2,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(4,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(6,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(8,(0,0))])
-    #print(sigma_new[0][spcl.AtomicIndex(10,(0,0))])
-    #sps_scf = spcl.sps_add_hop(sps_sd, sigma_new)
-    #kline = [arr([0,0]), 20, arr([-1/3,2/3]), 40, arr([1/3,1/3]), 20, arr([0,0])]
-    #bs = spcl.bandstructure(sps_scf, kline)
-    #plt.list_plot(bs,aspect_ratio=0.002)
