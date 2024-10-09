@@ -97,7 +97,7 @@ if __name__ == "__main__":
     #vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=True) #sharp cutoff shell=0.01
     print("vdd constructed!")
     kgrid = hartree_fock_solvers.Kgrid((0,0),(6,6))
-    controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
+    controller = hartree_fock_solvers.Controller(200, 0.002, 0.5)
     seed = seed_generation.fmz_stripe_seed_honcomblattice(nmx,nmy)*100
     if args.read_restart:
         with open('./seed_restart.pkl', 'rb') as file:
