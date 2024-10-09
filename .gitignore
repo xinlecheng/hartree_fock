@@ -30,6 +30,7 @@ __pycache__/
 data/
 *.csv
 *.tsv
+*.mpack
 
 # Ignore other unnecessary files
 .DS_Store
