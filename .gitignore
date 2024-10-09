@@ -3,6 +3,8 @@
 
 # Ignore results
 results/
+results_1over2/
+results_2over3/
 
 # Ignore slurm outputs
 slurm_out/
