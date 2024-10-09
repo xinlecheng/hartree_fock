@@ -79,8 +79,8 @@ if __name__ == "__main__":
     for i in range(cellprim.num_sites):
         hop_funs.hop_add_i(hoppings, i, {hop_funs.AtomicIndex(i,(0,0)): -(-1)**i*delta/2}, "inplace") #apply displacement field
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 2
-    nmy = 2
+    nmx = 4
+    nmy = 4
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
     #sps_sd = (sps_ec.spin_duplicate()).apply_pbc() #periodic boundary condition
@@ -96,7 +96,7 @@ if __name__ == "__main__":
     #vdd = interaction.pbc_screened_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=False)
     #vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=True) #sharp cutoff shell=0.01
     print("vdd constructed!")
-    kgrid = hartree_fock_solvers.Kgrid((0,0),(6,6))
+    kgrid = hartree_fock_solvers.Kgrid((0,0),(3,3))
     controller = hartree_fock_solvers.Controller(200, 0.002, 0.5)
     seed = seed_generation.fmz_stripe_seed_honcomblattice(nmx,nmy)*100
     if args.read_restart:
