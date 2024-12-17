@@ -79,8 +79,8 @@ if __name__ == "__main__":
     for i in range(cellprim.num_sites):
         hop_funs.hop_add_i(hoppings, i, {hop_funs.AtomicIndex(i,(0,0)): -(-1)**i*delta/2}, "inplace") #apply displacement field
     sps_prim = spcl.SingleParticleSystem(cellprim, hoppings)
-    nmx = 2
-    nmy = 2
+    nmx = 6
+    nmy = 6
     sps_ec = sps_prim.enlarge_cell(nmx, nmy)
     sps_sd = sps_ec.spin_duplicate()
     #sps_sd = (sps_ec.spin_duplicate()).apply_pbc() #periodic boundary condition
@@ -92,18 +92,18 @@ if __name__ == "__main__":
     #bs = spcl.bandstructure(sps_ec, kline)
     #plt.list_plot(bs)
     
-    vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 6*a_m + 0.1, 363)
+    #vdd = interaction.truncated_coulomb(sps_sd.cell, 0.2, 3*a_m + 0.1, 363)
     #vdd = interaction.pbc_screened_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=False)
-    #vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=True) #sharp cutoff shell=0.01
+    vdd = interaction.pbc_coulomb(sps_sd.cell, args.hubbard_u, args.scaling, inf=24, shell=0.01, subtract_offset=True) #sharp cutoff shell=0.01
     print("vdd constructed!")
-    kgrid = hartree_fock_solvers.Kgrid((0,0),(5,5))
+    kgrid = hartree_fock_solvers.Kgrid((0,0),(1,1))
     controller = hartree_fock_solvers.Controller(1000, 0.002, 0.5)
-    seed = seed_generation.afmz_stripe_seed_honcomblattice(nmx,nmy)*100
+    seed = seed_generation.fmz_honcomb_seed_honcomblattice(nmx,nmy)*100
     seed = seed + seed_generation.fmz_noise_honcomblattice(nmx,nmy)*0
     if args.read_restart:
         with open('./seed_restart.pkl', 'rb') as file:
             seed = pickle.load(file)
-    sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/8, kgrid, controller, seed, noise=args.noise,
+    sigma_new = hartree_fock_solvers.hartree_fock_solver(sps_sd, vdd, 1/6, kgrid, controller, seed, noise=args.noise,
                                              save_den_plots=True, save_output=True, saving_dir='./results',
                                              output_comment = f"delta = {args.delta}, hfield = {args.hfield}, hubbard_u = {args.hubbard_u}, scaling = {args.scaling}\n",
                                              den_plots_suffix=args.den_plots_suffix, output_suffix=args.output_suffix)

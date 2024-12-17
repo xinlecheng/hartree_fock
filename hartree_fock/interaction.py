@@ -45,7 +45,7 @@ def truncated_coulomb(cell_sd: single_particle_class.Cell, hubbard_u, cutoff = 0
                     for bravis_x in range(-num_bravis_x, num_bravis_x+1) for bravis_y in range(-num_bravis_y, num_bravis_y+1)]
     a_m = np.linalg.norm(dirtocar[:,0]) #the moire lattice constant
     def vr(r):
-        tf_screening_length = 6 #3
+        tf_screening_length = 3 #3
         if r > 0.1*a_m:
             return exp(-r/(tf_screening_length*a_m))*1/np.sqrt(r**2 + (0.1*a_m)**2)*scaling
         else:

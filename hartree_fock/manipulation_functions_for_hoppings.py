@@ -53,6 +53,9 @@ class AtomicIndex:
         return AtomicIndex(val[0], val[1])
  
 Hoppings = List[Dict[AtomicIndex, np.complex128]] #alias class name "Hoppings"
+"""
+hops:Hoppings[i][AtomicIndex(j,bravis)] is the hopping from site i at (0,0,0) unit cell to site j at the bravis vector unit cell
+"""
 
 def hop_copy(hop: Hoppings) -> Hoppings:
     return [{ind: hopi[ind] for ind in hopi} for hopi in hop]

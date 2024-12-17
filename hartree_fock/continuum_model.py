@@ -167,6 +167,7 @@ if __name__ == '__main__':
     kline = [arr([0,0]), 20, arr([1/3,1/3]), 10, arr([1/2,0]), 20, arr([0,0])]
     bs = bandstructure(hamiltonian, frac_to_car, kline)
     print("bs calcualted!")
+    print(bs[-1])
     num_bands = len(bs)
     plot_functions.list_plot(bs[num_bands-8:num_bands], aspect_ratio=1/250)
     #create_kspace_hamiltonian((0,0), kl)
